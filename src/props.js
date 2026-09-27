@@ -11,20 +11,21 @@ function person(b, x, z, ry = 0, o = {}) {
   const r = Math.random; const f = o.g ? o.g === 'f' : r() < .45;
   const skin = o.skin || pick(SKINS); const top = o.top || pick(CLOTHES); const bot = o.bot || pick(['#2b3552', '#1d1d1d', '#5a4a3a', '#efe3c5', '#3a3f58', '#2a2a2a']);
   const hair = o.hair || (r() < .85 ? '#15100d' : '#6b6b6b'); const h = o.h || rr(.93, 1.07);
-  const walk = o.walk ? .35 : 0; const long = f && (o.saree !== undefined ? o.saree : r() < .55);
+  const walk = o.walk ? .38 : 0; const long = f && (o.saree !== undefined ? o.saree : r() < .55); const shoe = pick(['#1b1b1b', '#3a2a22', '#f2f2f2', '#5a3d24']);
   b.withTx(x, 0, z, ry, h, () => {
-    if (long) { b.add('paint', taper(.62, 8), 0, .5, 0, .56, 1.0, .46, top); b.box('paint', 0, 1.0, .03, .06, .5, .02, pick(['#e9b949', '#c2185b', '#12a38c'])); }
-    else { b.add('paint', 'box', -.1, .43, 0, .15, .86, .17, bot, walk, 0, 0); b.add('paint', 'box', .1, .43, 0, .15, .86, .17, bot, -walk, 0, 0); }
-    b.box('paint', -.1, .04, .04, .15, .08, .26, '#1b1b1b'); b.box('paint', .1, .04, .04, .15, .08, .26, '#1b1b1b');
-    b.box('paint', 0, 1.1, 0, .4, .56, .22, top);
-    b.add('paint', 'box', -.26, 1.07, 0, .1, .56, .12, o.sleeve || top, -walk, 0, .08); b.add('paint', 'box', .26, 1.07, 0, .1, .56, .12, o.sleeve || top, walk, 0, -.08);
-    b.box('paint', 0, 1.43, 0, .1, .1, .1, skin);
-    b.add('paint', 'sph', 0, 1.56, 0, .23, .26, .23, skin);
-    if (o.helmet) b.add('shiny', 'hemi', 0, 1.6, 0, .3, .3, .3, o.helmet);
-    else if (o.cap) b.add('paint', 'cyl12', 0, 1.7, 0, .24, .1, .24, o.cap);
-    else { b.add('paint', 'hemi', 0, 1.58, -.01, .25, .22, .25, hair); if (f) b.box('paint', 0, 1.4, -.1, .22, .36, .06, hair); }
-    if (o.bag) b.box('paint', 0, 1.12, -.17, .3, .4, .14, o.bag);
-    if (o.dupatta) b.add('paint', 'box', .02, 1.15, .05, .5, .06, .3, o.dupatta, 0, 0, .7);
+    if (long) { b.add('paint', taper(.52, 10), 0, .52, 0, .52, 1.04, .42, top); b.add('paint', 'box', .02, 1.1, .06, .07, .62, .02, pick(['#e9b949', '#c2185b', '#12a38c', '#f26b38']), 0, 0, .5); }
+    else for (const s of [-1, 1]) { const sw = s * walk; b.add('paint', taper(.72, 8), s * .09, .69, 0, .16, .44, .17, bot, sw, 0, 0); b.add('paint', taper(.75, 8), s * .09, .27, -Math.sin(sw) * .2, .12, .44, .13, bot, sw, 0, 0); }
+    for (const s of [-1, 1]) b.add('paint', 'sphLo', s * .09, .05, .05 - (long ? 0 : Math.sin(s * walk) * .38), .13, .09, .27, shoe);
+    b.add('paint', 'cyl8', 0, .92, 0, .34, .14, .22, long ? top : bot);
+    b.add('paint', taper(1.22, 10), 0, 1.15, 0, .34, .46, .22, top);
+    for (const s of [-1, 1]) { b.add('paint', 'sphLo', s * .19, 1.36, 0, .15, .13, .15, top); const sw = -s * walk; b.add('paint', 'cyl6', s * .23, 1.19, Math.sin(sw) * -.08, .09, .32, .09, o.sleeve || top, sw, 0, s * .06); b.add('paint', 'cyl6', s * .245, .93, Math.sin(sw) * -.2, .075, .28, .075, skin, sw * 1.4, 0, s * .04); b.add('paint', 'sphLo', s * .25, .77, Math.sin(sw) * -.3, .08, .09, .08, skin); }
+    b.add('paint', 'cyl8', 0, 1.44, 0, .09, .1, .09, skin);
+    b.add('paint', 'sph', 0, 1.57, .005, .2, .245, .225, skin); b.add('paint', 'sphLo', 0, 1.56, -.11, .04, .05, .04, skin);
+    if (o.helmet) b.add('shiny', 'hemi', 0, 1.6, 0, .28, .28, .3, o.helmet);
+    else if (o.cap) { b.add('paint', 'hemi', 0, 1.64, 0, .23, .14, .24, o.cap); b.add('paint', 'box', 0, 1.64, -.14, .17, .02, .12, o.cap); }
+    else { b.add('paint', 'hemi', 0, 1.6, .012, .225, .2, .24, hair); if (f) b.add('paint', taper(1.2, 8), 0, 1.36, .07, .2, .36, .1, hair); }
+    if (o.bag) b.add('paint', 'box', 0, 1.15, .16, .28, .38, .13, o.bag);
+    if (o.dupatta) b.add('paint', 'box', .02, 1.15, -.05, .5, .06, .3, o.dupatta, 0, 0, .7);
   });
 }
 function crowd(b, x0, z0, n, spread, opts = {}) { for (let i = 0; i < n; i++) person(b, x0 + rr(-spread, spread), z0 + rr(-spread, spread), rr(0, 6.28), opts); }

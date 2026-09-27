@@ -101,6 +101,10 @@ function nextLandmark(wz) {
 
 /* ---------------- Characters ---------------- */
 const CHARS = [
+  { id: 'm_real', name: 'Vikram', g: 'm', outfit: 'tactical', real: true, cost: 0, top: '#ffffff', bottom: '#3a4030', shoe: '#2a2a2a', hair: 'buzz', hairC: '#1b1512', skin: '#a5714f', acc: 'cap' },
+  { id: 'm_real_urban', name: 'Kabir', g: 'm', outfit: 'tactical', real: true, cost: 0, top: '#6f8fb8', bottom: '#2a3550', shoe: '#1a1a1a', hair: 'buzz', hairC: '#1b1512', skin: '#9c6b4b', acc: 'cap' },
+  { id: 'm_real_desert', name: 'Rehan', g: 'm', outfit: 'tactical', real: true, cost: 250, top: '#d9b27a', bottom: '#8a6a4a', shoe: '#4a3522', hair: 'buzz', hairC: '#1b1512', skin: '#b07a55', acc: 'cap' },
+  { id: 'm_real_night', name: 'Aditya', g: 'm', outfit: 'tactical', real: true, cost: 500, top: '#3a3f58', bottom: '#15192b', shoe: '#111111', hair: 'buzz', hairC: '#1b1512', skin: '#8f5d3f', acc: 'cap' },
   { id: 'm_casual', name: 'Ravi', g: 'm', outfit: 'casual', cost: 0, top: '#2f7fd1', bottom: '#2b3552', shoe: '#f2f2f2', hair: 'short', hairC: '#1b1512', skin: '#a5714f', acc: 'none' },
   { id: 'f_casual', name: 'Sravya', g: 'f', outfit: 'casual', cost: 0, top: '#e0527a', bottom: '#2f3f6a', shoe: '#ffffff', hair: 'ponytail', hairC: '#140f0d', skin: '#b98260', acc: 'none' },
   { id: 'm_sports', name: 'Imran', g: 'm', outfit: 'sports', cost: 300, top: '#12a38c', bottom: '#15192b', shoe: '#ff6a2a', hair: 'curly', hairC: '#161010', skin: '#8f5d3f', acc: 'band' },
@@ -110,7 +114,7 @@ const CHARS = [
   { id: 'm_corp', name: 'Arjun', g: 'm', outfit: 'corporate', cost: 1200, top: '#2a3550', bottom: '#2a3550', shoe: '#1a1a1a', hair: 'short', hairC: '#1b1512', skin: '#b07a55', acc: 'glasses' },
   { id: 'f_corp', name: 'Meher', g: 'f', outfit: 'corporate', cost: 1200, top: '#3a3f58', bottom: '#3a3f58', shoe: '#7a1e2c', hair: 'long', hairC: '#20160f', skin: '#c9966f', acc: 'backpack' }
 ];
-const OUTFIT_NAMES = { casual: 'Casual', sports: 'Sports', traditional: 'Traditional', corporate: 'Corporate' };
+const OUTFIT_NAMES = { tactical: 'Tactical', casual: 'Casual', sports: 'Sports', traditional: 'Traditional', corporate: 'Corporate' };
 const HAIR_STYLES = ['short', 'curly', 'long', 'ponytail', 'bun', 'buzz'];
 const HAIR_COLORS = ['#0f0b0a', '#2a1b12', '#4a2c1a', '#7a4a26', '#9aa0a8'];
 const SKIN_TONES = ['#e2b594', '#c9966f', '#b07a55', '#9c6b4b', '#7e5236', '#5e3b26'];
@@ -230,13 +234,15 @@ function taAllowed(r) {
 /* ---------------- Persistence ---------------- */
 const SAVE_KEY = 'hydrun3d.v1';
 const DEFAULT_SETTINGS = () => ({ quality: 'auto', music: .55, sfx: .8, amb: .6, shake: true, tod: 'auto', weather: 'auto', traffic: 1, fps: false, bloom: true });
-const DEFAULT_SAVE = () => ({ tokens: 0, best: { score: 0, dist: 0 }, totalDist: 0, totalTokens: 0, runs: 0, unlocked: [0], lastZone: 0, lastDist: 0, chars: { owned: ['m_casual', 'f_casual'], sel: 'm_casual', custom: {} }, mis: { tier: 0, done: [false, false, false] }, multLevel: 0, tour: {}, chal: {}, ta: {}, board: [], friends: [], name: '', home: true, seenIntro: false });
+const DEFAULT_SAVE = () => ({ tokens: 0, best: { score: 0, dist: 0 }, totalDist: 0, totalTokens: 0, runs: 0, unlocked: [0], lastZone: 0, lastDist: 0, chars: { owned: ['m_real', 'm_real_urban', 'm_casual', 'f_casual'], sel: 'm_real', custom: {} }, mis: { tier: 0, done: [false, false, false] }, multLevel: 0, tour: {}, chal: {}, ta: {}, board: [], friends: [], name: '', home: true, seenIntro: false });
 let S = DEFAULT_SAVE();
 function loadSave() {
   try { const raw = localStorage.getItem(SAVE_KEY); if (raw) { const o = JSON.parse(raw); S = Object.assign(DEFAULT_SAVE(), o); } } catch (e) { S = DEFAULT_SAVE(); }
   S.settings = Object.assign(DEFAULT_SETTINGS(), S.settings || {});
   S.chars = Object.assign({ owned: ['m_casual', 'f_casual'], sel: 'm_casual', custom: {} }, S.chars || {});
   if (!Array.isArray(S.unlocked) || !S.unlocked.length) S.unlocked = [0];
+  for (const id of ['m_real', 'm_real_urban']) if (!S.chars.owned.includes(id)) S.chars.owned.unshift(id);
+  if (!S.chars.realV) { S.chars.realV = 1; if (S.chars.sel === 'm_casual') S.chars.sel = 'm_real'; }
 }
 let saveTimer = 0;
 function save() { try { localStorage.setItem(SAVE_KEY, JSON.stringify(S)); } catch (e) { } }

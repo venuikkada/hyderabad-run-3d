@@ -10,8 +10,9 @@ async function boot() {
   if (!window.THREE) { msg.textContent = 'The 3D engine did not load. Check your connection and reload the page.'; return; }
   try {
     await step(22, 'Painting the old city'); buildTextures(); buildMaterials(); buildPrims();
-    await step(46, 'Raising Charminar'); initRenderer(); initGame();
-    await step(72, 'Laying the roads'); ENV.tod = .03; setWeather('clear', true); resetWorld(0); setSkyInstant('old');
+    await step(38, 'Suiting up the runner'); await loadRealRunner();
+    await step(52, 'Raising Charminar'); initRenderer(); tuneMaterialsForIBL(); initGame();
+    await step(72, 'Laying the roads'); ENV.tod = .03; setWeather('clear', true); resetWorld(0); setSkyInstant('old'); applyTod(ENV.tod); refreshEnvMap(true);
     await step(92, 'Waking the city'); initInput(); refreshMenu(); $('#fps').hidden = !S.settings.fps;
   } catch (e) { console.error(e); msg.textContent = 'This device could not start WebGL. Try another browser or turn on hardware acceleration.'; return; }
   G.state = 'menu'; only('menu'); camera.position.set(-2.4, 1.9, 6.8); camLook.set(2.2, 13, -52);

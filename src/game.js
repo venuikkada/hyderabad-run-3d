@@ -57,7 +57,7 @@ function initGame() {
   const starMesh = new THREE.InstancedMesh(COINGEO.star, MAT.star, 20);
   for (const m of [tokenMesh, pearlMesh, starMesh]) { m.count = 0; m.frustumCulled = false; m.instanceMatrix.setUsage(THREE.DynamicDrawUsage); scene.add(m); }
   coinMeshes = { token: tokenMesh, pearl: pearlMesh, star: starMesh };
-  player = new Runner(); player.build(charDef()); scene.add(player.g);
+  player = new PlayerAvatar(); player.build(charDef()); scene.add(player.g);
   shadowRing = new THREE.Mesh(new THREE.RingGeometry(.5, 1.1, 24).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ color: 0xff3b30, transparent: true, opacity: .6, depthWrite: false })); shadowRing.visible = false; scene.add(shadowRing);
 }
 
@@ -383,7 +383,8 @@ function checkMissions() {
 function updateCamera(dt) {
   const metro = !!G.powers.metro; const cine = G.cine > 0 ? smooth(Math.min(1, G.cine / .8)) * smooth(Math.min(1, (3.4 - G.cine) / .8)) : 0;
   const side = G.cineSide || 1;
-  _v.set(G.px * .55 + cine * side * -3.5, 3.3 + G.py * .55 + (metro ? 2.5 : 0) + cine * 2.2, 6.2 + (metro ? 2.5 : 0) + cine * 1.5);
+  const por = camera.aspect < .9;
+  _v.set(G.px * (por ? .35 : .55) + cine * side * -3.5, (por ? 4.1 : 3.3) + G.py * .55 + (metro ? 2.5 : 0) + cine * 2.2, (por ? 7.4 : 6.2) + (metro ? 2.5 : 0) + cine * 1.5);
   _look.set(G.px * .75 + cine * side * 6, 1.4 + G.py * .6 + cine * 5, -9 - cine * 8);
   if (G.state === 'dying') { _v.set(G.px + 2.5, 2.4 + G.py, 4.5); _look.set(G.px, .8 + G.py, 0); }
   const k = 1 - Math.exp(-(G.state === 'dying' ? 3 : 7) * dt);
@@ -391,7 +392,7 @@ function updateCamera(dt) {
   const sh = S.settings.shake ? G.shake : G.shake * .2; const t = G.time * 40;
   camera.position.x += Math.sin(t * 1.3) * sh * .18; camera.position.y += Math.sin(t * 1.7 + 1) * sh * .14;
   camera.lookAt(camLook);
-  const fov = clamp(60 + (G.speed - 12) * .55, 60, 80) + cine * 4 + (G.dashT > 0 ? 5 : 0);
+  const fov = clamp((por ? 70 : 60) + (G.speed - 12) * .5, por ? 70 : 60, por ? 86 : 80) + cine * 4 + (G.dashT > 0 ? 5 : 0);
   camera.fov = damp(camera.fov, fov, 4, dt); camera.updateProjectionMatrix();
   G.shake *= Math.exp(-5 * dt); G.cine -= dt;
 }

@@ -2,8 +2,10 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="theme-color" content="#0f0b24">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
 <meta property="og:title" content="Hyderabad Run 3D">
 <meta property="og:description" content="Run the city. Conquer the distance. A 3D endless runner from Charminar to HITEC City.">
 </head>
@@ -176,6 +178,9 @@ table.lb tr.me td{color:var(--gold2)}
 .score-box .mult{margin-top:4px;padding:1px 8px;border-radius:6px;background:rgba(233,185,73,.2);border:1px solid var(--line);color:var(--gold2);font-family:var(--f-num);font-weight:700;font-size:15px}
 .score-box .dst{margin-top:4px;font-family:var(--f-num);font-weight:600;font-size:18px;color:var(--pearl);opacity:.9}
 .right-box{display:flex;flex-direction:column;align-items:flex-end;gap:8px}
+.right-box .icon-btn{width:40px;height:40px}
+@media (max-width:720px){.play-btn{padding:14px 16px}.play-btn b{font-size:28px}.brand h1{font-size:clamp(40px,12vw,64px)}.menu-col{gap:14px}.hint{display:none}#dashBtn{width:84px;height:84px}#dashBtn svg{width:84px;height:84px}.score-box .sc{font-size:30px}.speedo b{font-size:26px}.pw{min-width:0}}
+@media (orientation:landscape) and (max-height:500px){.route{min-width:0;width:min(420px,46vw);padding:6px 10px}.route .rtxt{margin-top:4px;font-size:11.5px}.menu-col{gap:10px}.brand h1{font-size:44px}.stats,.menu-missions{display:none}}
 .tok{display:flex;align-items:center;gap:8px;padding:4px 12px 4px 6px;border-radius:999px;background:rgba(15,11,36,.6);border:1px solid var(--line)}
 .tok i{width:22px;height:22px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#fff2b8,#e9b949 45%,#a8761d);box-shadow:inset 0 0 0 2px rgba(0,0,0,.15)}
 .tok b{font-family:var(--f-num);font-weight:800;font-size:22px;font-variant-numeric:tabular-nums}
@@ -305,6 +310,7 @@ table.lb tr.me td{color:var(--gold2)}
         <div><b id="stLm">0/19</b><small>Landmarks</small></div>
       </div>
       <div class="menu-missions" id="menuMissions"></div>
+      <div class="row" style="gap:8px"><button class="btn btnFull" style="padding:8px 12px">Full screen</button></div>
       <div class="hint"><span class="kbd">A</span><span class="kbd">D</span> or arrows to switch lanes · <span class="kbd">W</span>/<span class="kbd">Space</span> jump · <span class="kbd">S</span> slide · <span class="kbd">Shift</span> dash · swipe on phones · gamepad works too</div>
     </div>
   </div>
@@ -348,6 +354,7 @@ table.lb tr.me td{color:var(--gold2)}
       </div>
       <div class="right-box">
         <div class="tok"><i></i><b id="hTok">0</b></div>
+        <button class="icon-btn btnFull" aria-label="Full screen"><svg viewBox="0 0 24 24"><path d="M4 9V4h5v2H6v3H4zm11-5h5v5h-2V6h-3V4zM4 15h2v3h3v2H4v-5zm14 3v-3h2v5h-5v-2h3z"/></svg></button>
         <button class="icon-btn" id="btnPause" aria-label="Pause"><svg viewBox="0 0 24 24"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg></button>
       </div>
     </div>
@@ -395,6 +402,7 @@ table.lb tr.me td{color:var(--gold2)}
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/RenderPass.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/ShaderPass.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
 <script>
 'use strict';
 /* =========================================================
@@ -499,6 +507,10 @@ function nextLandmark(wz) {
 
 /* ---------------- Characters ---------------- */
 const CHARS = [
+  { id: 'm_real', name: 'Vikram', g: 'm', outfit: 'tactical', real: true, cost: 0, top: '#ffffff', bottom: '#3a4030', shoe: '#2a2a2a', hair: 'buzz', hairC: '#1b1512', skin: '#a5714f', acc: 'cap' },
+  { id: 'm_real_urban', name: 'Kabir', g: 'm', outfit: 'tactical', real: true, cost: 0, top: '#6f8fb8', bottom: '#2a3550', shoe: '#1a1a1a', hair: 'buzz', hairC: '#1b1512', skin: '#9c6b4b', acc: 'cap' },
+  { id: 'm_real_desert', name: 'Rehan', g: 'm', outfit: 'tactical', real: true, cost: 250, top: '#d9b27a', bottom: '#8a6a4a', shoe: '#4a3522', hair: 'buzz', hairC: '#1b1512', skin: '#b07a55', acc: 'cap' },
+  { id: 'm_real_night', name: 'Aditya', g: 'm', outfit: 'tactical', real: true, cost: 500, top: '#3a3f58', bottom: '#15192b', shoe: '#111111', hair: 'buzz', hairC: '#1b1512', skin: '#8f5d3f', acc: 'cap' },
   { id: 'm_casual', name: 'Ravi', g: 'm', outfit: 'casual', cost: 0, top: '#2f7fd1', bottom: '#2b3552', shoe: '#f2f2f2', hair: 'short', hairC: '#1b1512', skin: '#a5714f', acc: 'none' },
   { id: 'f_casual', name: 'Sravya', g: 'f', outfit: 'casual', cost: 0, top: '#e0527a', bottom: '#2f3f6a', shoe: '#ffffff', hair: 'ponytail', hairC: '#140f0d', skin: '#b98260', acc: 'none' },
   { id: 'm_sports', name: 'Imran', g: 'm', outfit: 'sports', cost: 300, top: '#12a38c', bottom: '#15192b', shoe: '#ff6a2a', hair: 'curly', hairC: '#161010', skin: '#8f5d3f', acc: 'band' },
@@ -508,7 +520,7 @@ const CHARS = [
   { id: 'm_corp', name: 'Arjun', g: 'm', outfit: 'corporate', cost: 1200, top: '#2a3550', bottom: '#2a3550', shoe: '#1a1a1a', hair: 'short', hairC: '#1b1512', skin: '#b07a55', acc: 'glasses' },
   { id: 'f_corp', name: 'Meher', g: 'f', outfit: 'corporate', cost: 1200, top: '#3a3f58', bottom: '#3a3f58', shoe: '#7a1e2c', hair: 'long', hairC: '#20160f', skin: '#c9966f', acc: 'backpack' }
 ];
-const OUTFIT_NAMES = { casual: 'Casual', sports: 'Sports', traditional: 'Traditional', corporate: 'Corporate' };
+const OUTFIT_NAMES = { tactical: 'Tactical', casual: 'Casual', sports: 'Sports', traditional: 'Traditional', corporate: 'Corporate' };
 const HAIR_STYLES = ['short', 'curly', 'long', 'ponytail', 'bun', 'buzz'];
 const HAIR_COLORS = ['#0f0b0a', '#2a1b12', '#4a2c1a', '#7a4a26', '#9aa0a8'];
 const SKIN_TONES = ['#e2b594', '#c9966f', '#b07a55', '#9c6b4b', '#7e5236', '#5e3b26'];
@@ -628,13 +640,15 @@ function taAllowed(r) {
 /* ---------------- Persistence ---------------- */
 const SAVE_KEY = 'hydrun3d.v1';
 const DEFAULT_SETTINGS = () => ({ quality: 'auto', music: .55, sfx: .8, amb: .6, shake: true, tod: 'auto', weather: 'auto', traffic: 1, fps: false, bloom: true });
-const DEFAULT_SAVE = () => ({ tokens: 0, best: { score: 0, dist: 0 }, totalDist: 0, totalTokens: 0, runs: 0, unlocked: [0], lastZone: 0, lastDist: 0, chars: { owned: ['m_casual', 'f_casual'], sel: 'm_casual', custom: {} }, mis: { tier: 0, done: [false, false, false] }, multLevel: 0, tour: {}, chal: {}, ta: {}, board: [], friends: [], name: '', home: true, seenIntro: false });
+const DEFAULT_SAVE = () => ({ tokens: 0, best: { score: 0, dist: 0 }, totalDist: 0, totalTokens: 0, runs: 0, unlocked: [0], lastZone: 0, lastDist: 0, chars: { owned: ['m_real', 'm_real_urban', 'm_casual', 'f_casual'], sel: 'm_real', custom: {} }, mis: { tier: 0, done: [false, false, false] }, multLevel: 0, tour: {}, chal: {}, ta: {}, board: [], friends: [], name: '', home: true, seenIntro: false });
 let S = DEFAULT_SAVE();
 function loadSave() {
   try { const raw = localStorage.getItem(SAVE_KEY); if (raw) { const o = JSON.parse(raw); S = Object.assign(DEFAULT_SAVE(), o); } } catch (e) { S = DEFAULT_SAVE(); }
   S.settings = Object.assign(DEFAULT_SETTINGS(), S.settings || {});
   S.chars = Object.assign({ owned: ['m_casual', 'f_casual'], sel: 'm_casual', custom: {} }, S.chars || {});
   if (!Array.isArray(S.unlocked) || !S.unlocked.length) S.unlocked = [0];
+  for (const id of ['m_real', 'm_real_urban']) if (!S.chars.owned.includes(id)) S.chars.owned.unshift(id);
+  if (!S.chars.realV) { S.chars.realV = 1; if (S.chars.sel === 'm_casual') S.chars.sel = 'm_real'; }
 }
 let saveTimer = 0;
 function save() { try { localStorage.setItem(SAVE_KEY, JSON.stringify(S)); } catch (e) { } }
@@ -1054,20 +1068,21 @@ function person(b, x, z, ry = 0, o = {}) {
   const r = Math.random; const f = o.g ? o.g === 'f' : r() < .45;
   const skin = o.skin || pick(SKINS); const top = o.top || pick(CLOTHES); const bot = o.bot || pick(['#2b3552', '#1d1d1d', '#5a4a3a', '#efe3c5', '#3a3f58', '#2a2a2a']);
   const hair = o.hair || (r() < .85 ? '#15100d' : '#6b6b6b'); const h = o.h || rr(.93, 1.07);
-  const walk = o.walk ? .35 : 0; const long = f && (o.saree !== undefined ? o.saree : r() < .55);
+  const walk = o.walk ? .38 : 0; const long = f && (o.saree !== undefined ? o.saree : r() < .55); const shoe = pick(['#1b1b1b', '#3a2a22', '#f2f2f2', '#5a3d24']);
   b.withTx(x, 0, z, ry, h, () => {
-    if (long) { b.add('paint', taper(.62, 8), 0, .5, 0, .56, 1.0, .46, top); b.box('paint', 0, 1.0, .03, .06, .5, .02, pick(['#e9b949', '#c2185b', '#12a38c'])); }
-    else { b.add('paint', 'box', -.1, .43, 0, .15, .86, .17, bot, walk, 0, 0); b.add('paint', 'box', .1, .43, 0, .15, .86, .17, bot, -walk, 0, 0); }
-    b.box('paint', -.1, .04, .04, .15, .08, .26, '#1b1b1b'); b.box('paint', .1, .04, .04, .15, .08, .26, '#1b1b1b');
-    b.box('paint', 0, 1.1, 0, .4, .56, .22, top);
-    b.add('paint', 'box', -.26, 1.07, 0, .1, .56, .12, o.sleeve || top, -walk, 0, .08); b.add('paint', 'box', .26, 1.07, 0, .1, .56, .12, o.sleeve || top, walk, 0, -.08);
-    b.box('paint', 0, 1.43, 0, .1, .1, .1, skin);
-    b.add('paint', 'sph', 0, 1.56, 0, .23, .26, .23, skin);
-    if (o.helmet) b.add('shiny', 'hemi', 0, 1.6, 0, .3, .3, .3, o.helmet);
-    else if (o.cap) b.add('paint', 'cyl12', 0, 1.7, 0, .24, .1, .24, o.cap);
-    else { b.add('paint', 'hemi', 0, 1.58, -.01, .25, .22, .25, hair); if (f) b.box('paint', 0, 1.4, -.1, .22, .36, .06, hair); }
-    if (o.bag) b.box('paint', 0, 1.12, -.17, .3, .4, .14, o.bag);
-    if (o.dupatta) b.add('paint', 'box', .02, 1.15, .05, .5, .06, .3, o.dupatta, 0, 0, .7);
+    if (long) { b.add('paint', taper(.52, 10), 0, .52, 0, .52, 1.04, .42, top); b.add('paint', 'box', .02, 1.1, .06, .07, .62, .02, pick(['#e9b949', '#c2185b', '#12a38c', '#f26b38']), 0, 0, .5); }
+    else for (const s of [-1, 1]) { const sw = s * walk; b.add('paint', taper(.72, 8), s * .09, .69, 0, .16, .44, .17, bot, sw, 0, 0); b.add('paint', taper(.75, 8), s * .09, .27, -Math.sin(sw) * .2, .12, .44, .13, bot, sw, 0, 0); }
+    for (const s of [-1, 1]) b.add('paint', 'sphLo', s * .09, .05, .05 - (long ? 0 : Math.sin(s * walk) * .38), .13, .09, .27, shoe);
+    b.add('paint', 'cyl8', 0, .92, 0, .34, .14, .22, long ? top : bot);
+    b.add('paint', taper(1.22, 10), 0, 1.15, 0, .34, .46, .22, top);
+    for (const s of [-1, 1]) { b.add('paint', 'sphLo', s * .19, 1.36, 0, .15, .13, .15, top); const sw = -s * walk; b.add('paint', 'cyl6', s * .23, 1.19, Math.sin(sw) * -.08, .09, .32, .09, o.sleeve || top, sw, 0, s * .06); b.add('paint', 'cyl6', s * .245, .93, Math.sin(sw) * -.2, .075, .28, .075, skin, sw * 1.4, 0, s * .04); b.add('paint', 'sphLo', s * .25, .77, Math.sin(sw) * -.3, .08, .09, .08, skin); }
+    b.add('paint', 'cyl8', 0, 1.44, 0, .09, .1, .09, skin);
+    b.add('paint', 'sph', 0, 1.57, .005, .2, .245, .225, skin); b.add('paint', 'sphLo', 0, 1.56, -.11, .04, .05, .04, skin);
+    if (o.helmet) b.add('shiny', 'hemi', 0, 1.6, 0, .28, .28, .3, o.helmet);
+    else if (o.cap) { b.add('paint', 'hemi', 0, 1.64, 0, .23, .14, .24, o.cap); b.add('paint', 'box', 0, 1.64, -.14, .17, .02, .12, o.cap); }
+    else { b.add('paint', 'hemi', 0, 1.6, .012, .225, .2, .24, hair); if (f) b.add('paint', taper(1.2, 8), 0, 1.36, .07, .2, .36, .1, hair); }
+    if (o.bag) b.add('paint', 'box', 0, 1.15, .16, .28, .38, .13, o.bag);
+    if (o.dupatta) b.add('paint', 'box', .02, 1.15, -.05, .5, .06, .3, o.dupatta, 0, 0, .7);
   });
 }
 function crowd(b, x0, z0, n, spread, opts = {}) { for (let i = 0; i < n; i++) person(b, x0 + rr(-spread, spread), z0 + rr(-spread, spread), rr(0, 6.28), opts); }
@@ -1725,7 +1740,7 @@ function initRenderer() {
   rainLines = new THREE.LineSegments(rg, new THREE.LineBasicMaterial({ color: 0xc8d6e8, transparent: true, opacity: 0, depthWrite: false })); rainLines.frustumCulled = false; scene.add(rainLines);
   blob = new THREE.Mesh(new THREE.PlaneGeometry(1.6, 1.6).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ color: 0x000000, alphaMap: TX.radial, transparent: true, opacity: .45, depthWrite: false }));
   scene.add(blob);
-  initParticles();
+  initParticles(); initEnvMap();
   setupComposer();
   applyQuality();
   onResize(); addEventListener('resize', onResize);
@@ -1740,7 +1755,7 @@ function setupComposer() {
 function applyQuality() {
   resolveQuality();
   renderer.setPixelRatio(Math.min(devicePixelRatio || 1, Q.pr));
-  sun.castShadow = Q.shadows; sun.shadow.mapSize.set(Q.shadowSize, Q.shadowSize); if (sun.shadow.map) { sun.shadow.map.dispose(); sun.shadow.map = null; }
+  sun.castShadow = Q.shadows; sun.shadow.mapSize.set(Q.shadowSize, Q.shadowSize); if (typeof refreshEnvMap === 'function' && ENVMAP.pmrem) refreshEnvMap(true); if (sun.shadow.map) { sun.shadow.map.dispose(); sun.shadow.map = null; }
   scene.fog.far = Q.draw; onResize();
 }
 function onResize() {
@@ -1808,7 +1823,7 @@ function applyTod(t) {
   skyUni.top.value.copy(TODC.top); skyUni.hor.value.copy(TODC.hor); skyUni.sunCol.value.copy(TODC.sun).multiplyScalar(moon ? .25 : 1); skyUni.night.value = night; skyUni.cloud.value = wc;
   skyUni.sunDir.value.set(sx * .85, Math.max(.04, sy) * .9 + .02, -.55).normalize();
   const flash = ENV.lightning > 0 ? ENV.lightning : 0;
-  sun.color.copy(TODC.sun); sun.intensity = sunI * (1 - wc * .6) + flash * 2; hemi.color.copy(TODC.hs); hemi.groundColor.copy(TODC.hg); hemi.intensity = hemiI * (1 - wc * .2) + flash;
+  sun.color.copy(TODC.sun); sun.intensity = sunI * (1 - wc * .6) + flash * 2; hemi.color.copy(TODC.hs); hemi.groundColor.copy(TODC.hg); hemi.intensity = (hemiI * (1 - wc * .2) + flash) * (scene.environment ? .6 : 1);
   scene.fog.color.copy(TODC.fog);
   renderer.toneMappingExposure = expo;
   ENV.night = night; ENV.sunDir = skyUni.sunDir.value;
@@ -2328,6 +2343,83 @@ class Runner {
 }
 
 /* =========================================================
+   Realistic runner: motion-captured skinned model (glTF),
+   with a wrapper that falls back to the stylized runner.
+   ========================================================= */
+const REAL = { gltf: null };
+function loadRealRunner(url = 'Soldier.glb') {
+  return new Promise(res => {
+    if (!THREE.GLTFLoader) return res(null);
+    const timer = setTimeout(() => res(null), 25000);
+    try { new THREE.GLTFLoader().load(url, g => { clearTimeout(timer); REAL.gltf = g; res(g); }, undefined, e => { clearTimeout(timer); console.warn('Runner model did not load', e); res(null); }); }
+    catch (e) { clearTimeout(timer); res(null); }
+  });
+}
+class RealRunner {
+  constructor(gltf) {
+    this.g = new THREE.Group(); this.body = new THREE.Group(); this.g.add(this.body);
+    const m = gltf.scene; this.model = m; this.body.add(m); this.mats = [];
+    m.traverse(o => {
+      if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; o.frustumCulled = false; o.material = o.material.clone(); o.material.envMapIntensity = .9; if (o.material.map) o.material.map.anisotropy = 8; this.mats.push(o.material); }
+    });
+    this.mixer = new THREE.AnimationMixer(m); this.act = {}; this.w = {};
+    for (const clip of gltf.animations) { if (clip.name === 'TPose') continue; const a = this.mixer.clipAction(clip); a.play(); a.setEffectiveWeight(clip.name === 'Idle' ? 1 : 0); this.act[clip.name] = a; this.w[clip.name] = clip.name === 'Idle' ? 1 : 0; }
+  }
+  build(d) {
+    this.def = d; const k = d.tintK != null ? d.tintK : .45;
+    for (const mt of this.mats) { if (/visor/i.test(mt.name)) continue; mt.color.setRGB(1, 1, 1).lerp(C(d.top || '#ffffff'), d.top && d.top !== '#ffffff' ? k : 0); }
+  }
+  update(dt, st) {
+    const tgt = { Idle: 0, Run: 0, Walk: 0 }; let ts = 1, rx = 0, y = 0, rate = 10;
+    switch (st.pose) {
+      case 'run': tgt.Run = 1; ts = clamp(st.speed / 10, .95, 2.1); rx = -.07; break;
+      case 'jump': tgt.Run = 1; ts = .3; rx = -.16; break;
+      case 'slide': tgt.Idle = 1; rx = 1.22; y = .3; rate = 16; break;
+      case 'crash': tgt.Idle = 1; rx = 1.45; y = .12; rate = 7; break;
+      default: tgt.Idle = 1;
+    }
+    for (const n in this.act) { const w = damp(this.w[n], tgt[n] || 0, 12, dt); this.w[n] = w; this.act[n].setEffectiveWeight(w); }
+    if (this.act.Run) this.act.Run.timeScale = ts;
+    this.mixer.update(dt);
+    this.body.rotation.x = damp(this.body.rotation.x, rx, rate, dt); this.body.position.y = damp(this.body.position.y, y, 14, dt);
+    this.g.rotation.z = damp(this.g.rotation.z, st.tilt || 0, 10, dt);
+  }
+}
+class PlayerAvatar {
+  constructor() { this.g = new THREE.Group(); this.proc = new Runner(); this.real = null; this.cur = null; }
+  build(d) {
+    const next = d.real && REAL.gltf ? (this.real || (this.real = new RealRunner(REAL.gltf))) : this.proc;
+    if (this.cur && this.cur !== next) this.g.remove(this.cur.g);
+    this.cur = next; if (next.g.parent !== this.g) this.g.add(next.g); next.build(d);
+  }
+  update(dt, st) { if (this.cur) this.cur.update(dt, st); }
+}
+
+/* ---------- Image-based lighting from the live sky ---------- */
+const ENVMAP = { pmrem: null, scene: null, rt: null, t: -99, tod: -1, cl: -1 };
+function initEnvMap() {
+  try { ENVMAP.pmrem = new THREE.PMREMGenerator(renderer); ENVMAP.scene = new THREE.Scene(); const sm = skyMesh.material; const fs = sm.fragmentShader.replace('gl_FragColor = vec4(c, 1.0);', 'gl_FragColor = linearToOutputTexel(vec4(pow(max(c, vec3(0.0)), vec3(2.2)), 1.0));'); if (fs === sm.fragmentShader) throw new Error('sky shader'); ENVMAP.scene.add(new THREE.Mesh(new THREE.SphereGeometry(50, 32, 16), new THREE.ShaderMaterial({ uniforms: sm.uniforms, vertexShader: sm.vertexShader, fragmentShader: fs, side: THREE.BackSide, depthWrite: false }))); } catch (e) { ENVMAP.pmrem = null; }
+}
+function refreshEnvMap(force = false) {
+  if (!ENVMAP.pmrem) return;
+  const low = Q === QUALITY.low;
+  if (!force && (low || G.time - ENVMAP.t < 1.5 || (Math.abs(ENV.tod - ENVMAP.tod) < .005 && Math.abs(ENV.cloud - ENVMAP.cl) < .03))) return;
+  ENVMAP.t = G.time; ENVMAP.tod = ENV.tod; ENVMAP.cl = ENV.cloud;
+  const rt = ENVMAP.pmrem.fromScene(ENVMAP.scene, 0); if (ENVMAP.rt) ENVMAP.rt.dispose(); ENVMAP.rt = rt; scene.environment = rt.texture;
+}
+function tuneMaterialsForIBL() {
+  const soft = ['paint', 'facade', 'old', 'lmk', 'leaf', 'rock', 'road', 'oldroad', 'highway', 'bridgeRoad', 'grass', 'earth', 'pave', 'stone', 'curb', 'signs', 'plank', 'ballast', 'rail', 'fence'];
+  for (const k of soft) if (MAT[k]) MAT[k].envMapIntensity = .4;
+  MAT.glass.metalness = .7; MAT.glass.roughness = .1; MAT.glass.envMapIntensity = 1.3;
+  MAT.shiny.metalness = .5; MAT.shiny.roughness = .22; MAT.shiny.envMapIntensity = 1.1;
+  MAT.metal.envMapIntensity = 1; MAT.bronze.envMapIntensity = 1;
+  MAT.water.metalness = .75; MAT.water.roughness = .06; MAT.water.envMapIntensity = 1.2; MAT.water.emissiveIntensity = .2;
+  // surface relief from the same procedural textures
+  const bump = [[MAT.road, TX.road, .02], [MAT.oldroad, TX.oldroad, .025], [MAT.highway, TX.highway, .02], [MAT.stone, TX.stone, .06], [MAT.pave, TX.pave, .04], [MAT.facade, TX.city.map, .035], [MAT.old, TX.old.map, .045], [MAT.ballast, TX.ballast, .06], [MAT.plank, TX.plank, .04], [MAT.earth, TX.earth, .05], [MAT.grass, TX.grass, .03]];
+  for (const [m, t, s] of bump) { m.bumpMap = t; m.bumpScale = s; m.needsUpdate = true; }
+}
+
+/* =========================================================
    Audio — everything synthesized with Web Audio (original).
    Soundtrack: electronic pulse + teenmaar-style dappu rhythm +
    a pluck lead in a Hijaz-flavoured scale.
@@ -2507,7 +2599,7 @@ function initGame() {
   const starMesh = new THREE.InstancedMesh(COINGEO.star, MAT.star, 20);
   for (const m of [tokenMesh, pearlMesh, starMesh]) { m.count = 0; m.frustumCulled = false; m.instanceMatrix.setUsage(THREE.DynamicDrawUsage); scene.add(m); }
   coinMeshes = { token: tokenMesh, pearl: pearlMesh, star: starMesh };
-  player = new Runner(); player.build(charDef()); scene.add(player.g);
+  player = new PlayerAvatar(); player.build(charDef()); scene.add(player.g);
   shadowRing = new THREE.Mesh(new THREE.RingGeometry(.5, 1.1, 24).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ color: 0xff3b30, transparent: true, opacity: .6, depthWrite: false })); shadowRing.visible = false; scene.add(shadowRing);
 }
 
@@ -2833,7 +2925,8 @@ function checkMissions() {
 function updateCamera(dt) {
   const metro = !!G.powers.metro; const cine = G.cine > 0 ? smooth(Math.min(1, G.cine / .8)) * smooth(Math.min(1, (3.4 - G.cine) / .8)) : 0;
   const side = G.cineSide || 1;
-  _v.set(G.px * .55 + cine * side * -3.5, 3.3 + G.py * .55 + (metro ? 2.5 : 0) + cine * 2.2, 6.2 + (metro ? 2.5 : 0) + cine * 1.5);
+  const por = camera.aspect < .9;
+  _v.set(G.px * (por ? .35 : .55) + cine * side * -3.5, (por ? 4.1 : 3.3) + G.py * .55 + (metro ? 2.5 : 0) + cine * 2.2, (por ? 7.4 : 6.2) + (metro ? 2.5 : 0) + cine * 1.5);
   _look.set(G.px * .75 + cine * side * 6, 1.4 + G.py * .6 + cine * 5, -9 - cine * 8);
   if (G.state === 'dying') { _v.set(G.px + 2.5, 2.4 + G.py, 4.5); _look.set(G.px, .8 + G.py, 0); }
   const k = 1 - Math.exp(-(G.state === 'dying' ? 3 : 7) * dt);
@@ -2841,7 +2934,7 @@ function updateCamera(dt) {
   const sh = S.settings.shake ? G.shake : G.shake * .2; const t = G.time * 40;
   camera.position.x += Math.sin(t * 1.3) * sh * .18; camera.position.y += Math.sin(t * 1.7 + 1) * sh * .14;
   camera.lookAt(camLook);
-  const fov = clamp(60 + (G.speed - 12) * .55, 60, 80) + cine * 4 + (G.dashT > 0 ? 5 : 0);
+  const fov = clamp((por ? 70 : 60) + (G.speed - 12) * .5, por ? 70 : 60, por ? 86 : 80) + cine * 4 + (G.dashT > 0 ? 5 : 0);
   camera.fov = damp(camera.fov, fov, 4, dt); camera.updateProjectionMatrix();
   G.shake *= Math.exp(-5 * dt); G.cine -= dt;
 }
@@ -2989,8 +3082,10 @@ function renderChars() {
   const cust = (key, list, cls) => `<div class="swatches" data-cust="${key}">${list.map(c => `<button class="sw${d[key] === c ? ' on' : ''}" data-v="${c}" style="background:${c}" aria-label="${key} ${c}"></button>`).join('')}</div>`;
   const opt = (key, list) => `<div class="seg" data-cust="${key}">${list.map(([v, n]) => `<button data-v="${v}" class="${d[key] === v ? 'on' : ''}">${n}</button>`).join('')}</div>`;
   let h = `<div class="row" style="justify-content:space-between"><div><div class="flabel">Tokens</div><div class="num" style="font-size:26px;font-weight:800">${fmtIN(S.tokens)}</div></div><p class="note" style="margin:0;max-width:24ch;text-align:right">Drag the runner to turn them around.</p></div>`;
-  h += `<div class="char-grid">${CHARS.map(c => { const own = S.chars.owned.includes(c.id); return `<button class="cchip${c.id === sel ? ' on' : ''}" data-char="${c.id}">${own ? '' : `<span class="cost">${c.cost}</span>`}<span class="face" style="background:linear-gradient(${c.top} 50%, ${c.skin} 50%)"></span><b>${c.name}</b><small>${c.g === 'm' ? 'M' : 'F'} · ${OUTFIT_NAMES[c.outfit]}</small></button>`; }).join('')}</div>`;
+  h += `<div class="char-grid">${CHARS.map(c => { const own = S.chars.owned.includes(c.id); return `<button class="cchip${c.id === sel ? ' on' : ''}" data-char="${c.id}">${own ? '' : `<span class="cost">${c.cost}</span>`}<span class="face" style="background:linear-gradient(${c.top} 50%, ${c.skin} 50%)"></span><b>${c.name}</b><small>${c.real ? 'Realistic' : (c.g === 'm' ? 'M' : 'F') + ' · ' + OUTFIT_NAMES[c.outfit]}</small></button>`; }).join('')}</div>`;
+  if (d.real && !REAL.gltf) h += `<p class="note" style="margin:0">The realistic model could not load on this connection, so this runner is shown in the stylized look.</p>`;
   if (!owned) { const c = CHARS.find(x => x.id === sel); h += `<div class="card"><div class="grow"><h3>${c.name} · ${OUTFIT_NAMES[c.outfit]}</h3><p>Unlock for ${c.cost} tokens.</p></div><button class="btn primary" id="buyChar" ${S.tokens < c.cost ? 'disabled' : ''}>Unlock</button></div>`; }
+  else if (d.real) h += `<div class="field"><span class="flabel">Outfit tint</span>${cust('top', ['#ffffff', '#6f8fb8', '#d9b27a', '#3a3f58', '#7a8a5a', '#8a2a12', '#e9b949', '#12a38c'])}</div><p class="note" style="margin:0">Realistic motion-captured runner. Realistic women runners are not available yet; Sravya, Ayesha, Lakshmi and Meher use the stylized look.</p><button class="btn primary" data-close>Use this runner</button>`;
   else h += `<div class="field"><span class="flabel">Hair</span>${opt('hair', HAIR_STYLES.map(x => [x, x[0].toUpperCase() + x.slice(1)]))}</div>
     <div class="field"><span class="flabel">Hair colour</span>${cust('hairC', HAIR_COLORS)}</div>
     <div class="field"><span class="flabel">Skin tone</span>${cust('skin', SKIN_TONES)}</div>
@@ -3211,10 +3306,16 @@ function initInput() {
   $('#btnRevive').addEventListener('click', doRevive); $('#btnNoRevive').addEventListener('click', () => { show('revive', false); endRun(false); });
   $('#btnPlay').addEventListener('click', () => launch({ mode: 'endless', zone: 0 }, true));
   $('#introSkip').addEventListener('click', endIntro);
+  const fsOk = document.fullscreenEnabled || document.webkitFullscreenEnabled;
+  $$('.btnFull').forEach(bt => { bt.hidden = !fsOk; bt.addEventListener('click', toggleFull); });
   $$('[data-open]').forEach(b => b.addEventListener('click', () => openSheet(b.dataset.open)));
   document.addEventListener('click', e => { if (e.target.closest('[data-close]')) closeSheets(); });
   document.addEventListener('visibilitychange', () => { if (document.hidden) pause(); });
   addEventListener('pointerdown', () => AU.init(), { once: true }); addEventListener('keydown', () => AU.init(), { once: true });
+}
+function toggleFull() {
+  const d = document, el = d.documentElement;
+  try { if (d.fullscreenElement || d.webkitFullscreenElement) (d.exitFullscreen || d.webkitExitFullscreen).call(d); else { const p = (el.requestFullscreen || el.webkitRequestFullscreen).call(el); if (p && p.catch) p.catch(() => toast('Full screen is not available here')); } } catch (e) { toast('Full screen is not available here'); }
 }
 const PAD = { prev: {} };
 function pollPad() {
@@ -3248,24 +3349,25 @@ function loop(now) {
   // world
   root.position.z = G.dist; updateChunks(G.dist);
   const zk = zoneAt(G.dist).kind; updateEnv(dt); if (st === 'menu' || st === 'chars') { if (S.settings.tod !== 'auto') ENV.tod = { dawn: .02, day: .25, sunset: .5, night: .75 }[S.settings.tod]; }
-  applyTod(ENV.tod); updateSkyline(dt, zk); updateAmbient(dt, G.dist, G.time); updateParticles(dt, worldDz);
+  applyTod(ENV.tod); refreshEnvMap(); updateSkyline(dt, zk); updateAmbient(dt, G.dist, G.time); updateParticles(dt, worldDz);
   MAT.water.map.offset.x += dt * .01; MAT.water.map.offset.y += dt * .006;
   if (ENV.night > .3) MAT.cable.color.setHSL((G.time * .08) % 1, .85, .6).multiplyScalar(1.6); else MAT.cable.color.setRGB(1, 1, 1);
   // player
   const pose = st === 'dying' || st === 'revive' || (st === 'results' && G.dieT > 0) ? 'crash' : (st === 'playing' || st === 'countdown') ? (st === 'countdown' ? 'idle' : G.powers.metro ? 'jump' : G.sliding > 0 ? 'slide' : !G.grounded ? 'jump' : 'run') : 'idle';
   player.g.position.set(G.px, G.py, 0); if (st === 'chars') player.g.rotation.y = damp(player.g.rotation.y, charYaw, 10, dt); else if (st !== 'menu') player.g.rotation.y = 0;
   player.update(dt * (st === 'dying' ? G.slowmo : 1), { pose, speed: G.speed, vy: G.vy, tilt: G.tilt });
-  blob.position.set(G.px, .04, 0); const bs = clamp(1 - G.py * .12, .35, 1); blob.scale.set(bs, 1, bs); blob.material.opacity = .45 * bs;
+  blob.position.set(G.px, .04, 0); const bs = clamp(1 - G.py * .12, .35, 1) * .8; blob.scale.set(bs, 1, bs); blob.material.opacity = .26 * bs;
   const sd = ENV.sunDir || skyUni.sunDir.value; sun.target.position.set(G.px, 0, -14); sun.position.set(G.px + sd.x * 90, Math.max(20, sd.y * 90), -14 + sd.z * 90);
   AU.intensity = st === 'playing' ? (G.speed > 20 || G.powers.metro || G.powers.dash ? 2 : 1) : 0;
   AU.update(dt, zk, st === 'playing' ? G.speed : 0, st === 'playing');
   if (bloomPass) bloomPass.strength = .35 + ENV.night * .55;
   renderFrame(scene, camera);
 }
+function isPortrait() { return camera.aspect < .9; }
 function swoopUpdate(dt) {
   swoopT -= dt; const k = 1 - clamp(swoopT / 2.6, 0, 1); const e = 1 - Math.pow(1 - k, 3);
-  const chase = new THREE.Vector3(G.px * .55, 3.3 + G.py * .55, 6.2), high = new THREE.Vector3(0, 70, 30);
-  camera.position.lerpVectors(high, chase, e); camLook.lerpVectors(new THREE.Vector3(0, 22, -52), new THREE.Vector3(G.px * .75, 1.4, -9), e); camera.lookAt(camLook); camera.fov = 60; camera.updateProjectionMatrix();
+  const chase = new THREE.Vector3(G.px * .55, (isPortrait() ? 4.1 : 3.3) + G.py * .55, isPortrait() ? 7.4 : 6.2), high = new THREE.Vector3(0, 70, 30);
+  camera.position.lerpVectors(high, chase, e); camLook.lerpVectors(new THREE.Vector3(0, 22, -52), new THREE.Vector3(G.px * .75, 1.4, -9), e); camera.lookAt(camLook); camera.fov = isPortrait() ? 72 : 60; camera.updateProjectionMatrix();
 }
 function menuCam(dt) {
   if (G.state === 'chars') { const tgt = new THREE.Vector3(innerWidth > 720 ? 1.1 : 0, 1.45, -3.4); camera.position.lerp(tgt, 1 - Math.exp(-4 * dt)); camLook.lerp(new THREE.Vector3(innerWidth > 720 ? 1.1 : 0, innerWidth > 720 ? 1.05 : 1.35, 0), 1 - Math.exp(-4 * dt)); camera.lookAt(camLook); camera.fov = damp(camera.fov, 42, 4, dt); camera.updateProjectionMatrix(); return; }
@@ -3288,8 +3390,9 @@ async function boot() {
   if (!window.THREE) { msg.textContent = 'The 3D engine did not load. Check your connection and reload the page.'; return; }
   try {
     await step(22, 'Painting the old city'); buildTextures(); buildMaterials(); buildPrims();
-    await step(46, 'Raising Charminar'); initRenderer(); initGame();
-    await step(72, 'Laying the roads'); ENV.tod = .03; setWeather('clear', true); resetWorld(0); setSkyInstant('old');
+    await step(38, 'Suiting up the runner'); await loadRealRunner();
+    await step(52, 'Raising Charminar'); initRenderer(); tuneMaterialsForIBL(); initGame();
+    await step(72, 'Laying the roads'); ENV.tod = .03; setWeather('clear', true); resetWorld(0); setSkyInstant('old'); applyTod(ENV.tod); refreshEnvMap(true);
     await step(92, 'Waking the city'); initInput(); refreshMenu(); $('#fps').hidden = !S.settings.fps;
   } catch (e) { console.error(e); msg.textContent = 'This device could not start WebGL. Try another browser or turn on hardware acceleration.'; return; }
   G.state = 'menu'; only('menu'); camera.position.set(-2.4, 1.9, 6.8); camLook.set(2.2, 13, -52);

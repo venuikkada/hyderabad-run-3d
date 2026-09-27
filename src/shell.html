@@ -166,6 +166,9 @@ table.lb tr.me td{color:var(--gold2)}
 .score-box .mult{margin-top:4px;padding:1px 8px;border-radius:6px;background:rgba(233,185,73,.2);border:1px solid var(--line);color:var(--gold2);font-family:var(--f-num);font-weight:700;font-size:15px}
 .score-box .dst{margin-top:4px;font-family:var(--f-num);font-weight:600;font-size:18px;color:var(--pearl);opacity:.9}
 .right-box{display:flex;flex-direction:column;align-items:flex-end;gap:8px}
+.right-box .icon-btn{width:40px;height:40px}
+@media (max-width:720px){.play-btn{padding:14px 16px}.play-btn b{font-size:28px}.brand h1{font-size:clamp(40px,12vw,64px)}.menu-col{gap:14px}.hint{display:none}#dashBtn{width:84px;height:84px}#dashBtn svg{width:84px;height:84px}.score-box .sc{font-size:30px}.speedo b{font-size:26px}.pw{min-width:0}}
+@media (orientation:landscape) and (max-height:500px){.route{min-width:0;width:min(420px,46vw);padding:6px 10px}.route .rtxt{margin-top:4px;font-size:11.5px}.menu-col{gap:10px}.brand h1{font-size:44px}.stats,.menu-missions{display:none}}
 .tok{display:flex;align-items:center;gap:8px;padding:4px 12px 4px 6px;border-radius:999px;background:rgba(15,11,36,.6);border:1px solid var(--line)}
 .tok i{width:22px;height:22px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#fff2b8,#e9b949 45%,#a8761d);box-shadow:inset 0 0 0 2px rgba(0,0,0,.15)}
 .tok b{font-family:var(--f-num);font-weight:800;font-size:22px;font-variant-numeric:tabular-nums}
@@ -295,6 +298,7 @@ table.lb tr.me td{color:var(--gold2)}
         <div><b id="stLm">0/19</b><small>Landmarks</small></div>
       </div>
       <div class="menu-missions" id="menuMissions"></div>
+      <div class="row" style="gap:8px"><button class="btn btnFull" style="padding:8px 12px">Full screen</button></div>
       <div class="hint"><span class="kbd">A</span><span class="kbd">D</span> or arrows to switch lanes · <span class="kbd">W</span>/<span class="kbd">Space</span> jump · <span class="kbd">S</span> slide · <span class="kbd">Shift</span> dash · swipe on phones · gamepad works too</div>
     </div>
   </div>
@@ -338,6 +342,7 @@ table.lb tr.me td{color:var(--gold2)}
       </div>
       <div class="right-box">
         <div class="tok"><i></i><b id="hTok">0</b></div>
+        <button class="icon-btn btnFull" aria-label="Full screen"><svg viewBox="0 0 24 24"><path d="M4 9V4h5v2H6v3H4zm11-5h5v5h-2V6h-3V4zM4 15h2v3h3v2H4v-5zm14 3v-3h2v5h-5v-2h3z"/></svg></button>
         <button class="icon-btn" id="btnPause" aria-label="Pause"><svg viewBox="0 0 24 24"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg></button>
       </div>
     </div>

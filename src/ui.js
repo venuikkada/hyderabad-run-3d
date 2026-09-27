@@ -141,8 +141,10 @@ function renderChars() {
   const cust = (key, list, cls) => `<div class="swatches" data-cust="${key}">${list.map(c => `<button class="sw${d[key] === c ? ' on' : ''}" data-v="${c}" style="background:${c}" aria-label="${key} ${c}"></button>`).join('')}</div>`;
   const opt = (key, list) => `<div class="seg" data-cust="${key}">${list.map(([v, n]) => `<button data-v="${v}" class="${d[key] === v ? 'on' : ''}">${n}</button>`).join('')}</div>`;
   let h = `<div class="row" style="justify-content:space-between"><div><div class="flabel">Tokens</div><div class="num" style="font-size:26px;font-weight:800">${fmtIN(S.tokens)}</div></div><p class="note" style="margin:0;max-width:24ch;text-align:right">Drag the runner to turn them around.</p></div>`;
-  h += `<div class="char-grid">${CHARS.map(c => { const own = S.chars.owned.includes(c.id); return `<button class="cchip${c.id === sel ? ' on' : ''}" data-char="${c.id}">${own ? '' : `<span class="cost">${c.cost}</span>`}<span class="face" style="background:linear-gradient(${c.top} 50%, ${c.skin} 50%)"></span><b>${c.name}</b><small>${c.g === 'm' ? 'M' : 'F'} · ${OUTFIT_NAMES[c.outfit]}</small></button>`; }).join('')}</div>`;
+  h += `<div class="char-grid">${CHARS.map(c => { const own = S.chars.owned.includes(c.id); return `<button class="cchip${c.id === sel ? ' on' : ''}" data-char="${c.id}">${own ? '' : `<span class="cost">${c.cost}</span>`}<span class="face" style="background:linear-gradient(${c.top} 50%, ${c.skin} 50%)"></span><b>${c.name}</b><small>${c.real ? 'Realistic' : (c.g === 'm' ? 'M' : 'F') + ' · ' + OUTFIT_NAMES[c.outfit]}</small></button>`; }).join('')}</div>`;
+  if (d.real && !REAL.gltf) h += `<p class="note" style="margin:0">The realistic model could not load on this connection, so this runner is shown in the stylized look.</p>`;
   if (!owned) { const c = CHARS.find(x => x.id === sel); h += `<div class="card"><div class="grow"><h3>${c.name} · ${OUTFIT_NAMES[c.outfit]}</h3><p>Unlock for ${c.cost} tokens.</p></div><button class="btn primary" id="buyChar" ${S.tokens < c.cost ? 'disabled' : ''}>Unlock</button></div>`; }
+  else if (d.real) h += `<div class="field"><span class="flabel">Outfit tint</span>${cust('top', ['#ffffff', '#6f8fb8', '#d9b27a', '#3a3f58', '#7a8a5a', '#8a2a12', '#e9b949', '#12a38c'])}</div><p class="note" style="margin:0">Realistic motion-captured runner. Realistic women runners are not available yet; Sravya, Ayesha, Lakshmi and Meher use the stylized look.</p><button class="btn primary" data-close>Use this runner</button>`;
   else h += `<div class="field"><span class="flabel">Hair</span>${opt('hair', HAIR_STYLES.map(x => [x, x[0].toUpperCase() + x.slice(1)]))}</div>
     <div class="field"><span class="flabel">Hair colour</span>${cust('hairC', HAIR_COLORS)}</div>
     <div class="field"><span class="flabel">Skin tone</span>${cust('skin', SKIN_TONES)}</div>
@@ -363,10 +365,16 @@ function initInput() {
   $('#btnRevive').addEventListener('click', doRevive); $('#btnNoRevive').addEventListener('click', () => { show('revive', false); endRun(false); });
   $('#btnPlay').addEventListener('click', () => launch({ mode: 'endless', zone: 0 }, true));
   $('#introSkip').addEventListener('click', endIntro);
+  const fsOk = document.fullscreenEnabled || document.webkitFullscreenEnabled;
+  $$('.btnFull').forEach(bt => { bt.hidden = !fsOk; bt.addEventListener('click', toggleFull); });
   $$('[data-open]').forEach(b => b.addEventListener('click', () => openSheet(b.dataset.open)));
   document.addEventListener('click', e => { if (e.target.closest('[data-close]')) closeSheets(); });
   document.addEventListener('visibilitychange', () => { if (document.hidden) pause(); });
   addEventListener('pointerdown', () => AU.init(), { once: true }); addEventListener('keydown', () => AU.init(), { once: true });
+}
+function toggleFull() {
+  const d = document, el = d.documentElement;
+  try { if (d.fullscreenElement || d.webkitFullscreenElement) (d.exitFullscreen || d.webkitExitFullscreen).call(d); else { const p = (el.requestFullscreen || el.webkitRequestFullscreen).call(el); if (p && p.catch) p.catch(() => toast('Full screen is not available here')); } } catch (e) { toast('Full screen is not available here'); }
 }
 const PAD = { prev: {} };
 function pollPad() {
@@ -400,24 +408,25 @@ function loop(now) {
   // world
   root.position.z = G.dist; updateChunks(G.dist);
   const zk = zoneAt(G.dist).kind; updateEnv(dt); if (st === 'menu' || st === 'chars') { if (S.settings.tod !== 'auto') ENV.tod = { dawn: .02, day: .25, sunset: .5, night: .75 }[S.settings.tod]; }
-  applyTod(ENV.tod); updateSkyline(dt, zk); updateAmbient(dt, G.dist, G.time); updateParticles(dt, worldDz);
+  applyTod(ENV.tod); refreshEnvMap(); updateSkyline(dt, zk); updateAmbient(dt, G.dist, G.time); updateParticles(dt, worldDz);
   MAT.water.map.offset.x += dt * .01; MAT.water.map.offset.y += dt * .006;
   if (ENV.night > .3) MAT.cable.color.setHSL((G.time * .08) % 1, .85, .6).multiplyScalar(1.6); else MAT.cable.color.setRGB(1, 1, 1);
   // player
   const pose = st === 'dying' || st === 'revive' || (st === 'results' && G.dieT > 0) ? 'crash' : (st === 'playing' || st === 'countdown') ? (st === 'countdown' ? 'idle' : G.powers.metro ? 'jump' : G.sliding > 0 ? 'slide' : !G.grounded ? 'jump' : 'run') : 'idle';
   player.g.position.set(G.px, G.py, 0); if (st === 'chars') player.g.rotation.y = damp(player.g.rotation.y, charYaw, 10, dt); else if (st !== 'menu') player.g.rotation.y = 0;
   player.update(dt * (st === 'dying' ? G.slowmo : 1), { pose, speed: G.speed, vy: G.vy, tilt: G.tilt });
-  blob.position.set(G.px, .04, 0); const bs = clamp(1 - G.py * .12, .35, 1); blob.scale.set(bs, 1, bs); blob.material.opacity = .45 * bs;
+  blob.position.set(G.px, .04, 0); const bs = clamp(1 - G.py * .12, .35, 1) * .8; blob.scale.set(bs, 1, bs); blob.material.opacity = .26 * bs;
   const sd = ENV.sunDir || skyUni.sunDir.value; sun.target.position.set(G.px, 0, -14); sun.position.set(G.px + sd.x * 90, Math.max(20, sd.y * 90), -14 + sd.z * 90);
   AU.intensity = st === 'playing' ? (G.speed > 20 || G.powers.metro || G.powers.dash ? 2 : 1) : 0;
   AU.update(dt, zk, st === 'playing' ? G.speed : 0, st === 'playing');
   if (bloomPass) bloomPass.strength = .35 + ENV.night * .55;
   renderFrame(scene, camera);
 }
+function isPortrait() { return camera.aspect < .9; }
 function swoopUpdate(dt) {
   swoopT -= dt; const k = 1 - clamp(swoopT / 2.6, 0, 1); const e = 1 - Math.pow(1 - k, 3);
-  const chase = new THREE.Vector3(G.px * .55, 3.3 + G.py * .55, 6.2), high = new THREE.Vector3(0, 70, 30);
-  camera.position.lerpVectors(high, chase, e); camLook.lerpVectors(new THREE.Vector3(0, 22, -52), new THREE.Vector3(G.px * .75, 1.4, -9), e); camera.lookAt(camLook); camera.fov = 60; camera.updateProjectionMatrix();
+  const chase = new THREE.Vector3(G.px * .55, (isPortrait() ? 4.1 : 3.3) + G.py * .55, isPortrait() ? 7.4 : 6.2), high = new THREE.Vector3(0, 70, 30);
+  camera.position.lerpVectors(high, chase, e); camLook.lerpVectors(new THREE.Vector3(0, 22, -52), new THREE.Vector3(G.px * .75, 1.4, -9), e); camera.lookAt(camLook); camera.fov = isPortrait() ? 72 : 60; camera.updateProjectionMatrix();
 }
 function menuCam(dt) {
   if (G.state === 'chars') { const tgt = new THREE.Vector3(innerWidth > 720 ? 1.1 : 0, 1.45, -3.4); camera.position.lerp(tgt, 1 - Math.exp(-4 * dt)); camLook.lerp(new THREE.Vector3(innerWidth > 720 ? 1.1 : 0, innerWidth > 720 ? 1.05 : 1.35, 0), 1 - Math.exp(-4 * dt)); camera.lookAt(camLook); camera.fov = damp(camera.fov, 42, 4, dt); camera.updateProjectionMatrix(); return; }

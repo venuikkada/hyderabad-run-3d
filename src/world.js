@@ -52,7 +52,7 @@ function initRenderer() {
   rainLines = new THREE.LineSegments(rg, new THREE.LineBasicMaterial({ color: 0xc8d6e8, transparent: true, opacity: 0, depthWrite: false })); rainLines.frustumCulled = false; scene.add(rainLines);
   blob = new THREE.Mesh(new THREE.PlaneGeometry(1.6, 1.6).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ color: 0x000000, alphaMap: TX.radial, transparent: true, opacity: .45, depthWrite: false }));
   scene.add(blob);
-  initParticles();
+  initParticles(); initEnvMap();
   setupComposer();
   applyQuality();
   onResize(); addEventListener('resize', onResize);
@@ -67,7 +67,7 @@ function setupComposer() {
 function applyQuality() {
   resolveQuality();
   renderer.setPixelRatio(Math.min(devicePixelRatio || 1, Q.pr));
-  sun.castShadow = Q.shadows; sun.shadow.mapSize.set(Q.shadowSize, Q.shadowSize); if (sun.shadow.map) { sun.shadow.map.dispose(); sun.shadow.map = null; }
+  sun.castShadow = Q.shadows; sun.shadow.mapSize.set(Q.shadowSize, Q.shadowSize); if (typeof refreshEnvMap === 'function' && ENVMAP.pmrem) refreshEnvMap(true); if (sun.shadow.map) { sun.shadow.map.dispose(); sun.shadow.map = null; }
   scene.fog.far = Q.draw; onResize();
 }
 function onResize() {
@@ -135,7 +135,7 @@ function applyTod(t) {
   skyUni.top.value.copy(TODC.top); skyUni.hor.value.copy(TODC.hor); skyUni.sunCol.value.copy(TODC.sun).multiplyScalar(moon ? .25 : 1); skyUni.night.value = night; skyUni.cloud.value = wc;
   skyUni.sunDir.value.set(sx * .85, Math.max(.04, sy) * .9 + .02, -.55).normalize();
   const flash = ENV.lightning > 0 ? ENV.lightning : 0;
-  sun.color.copy(TODC.sun); sun.intensity = sunI * (1 - wc * .6) + flash * 2; hemi.color.copy(TODC.hs); hemi.groundColor.copy(TODC.hg); hemi.intensity = hemiI * (1 - wc * .2) + flash;
+  sun.color.copy(TODC.sun); sun.intensity = sunI * (1 - wc * .6) + flash * 2; hemi.color.copy(TODC.hs); hemi.groundColor.copy(TODC.hg); hemi.intensity = (hemiI * (1 - wc * .2) + flash) * (scene.environment ? .6 : 1);
   scene.fog.color.copy(TODC.fog);
   renderer.toneMappingExposure = expo;
   ENV.night = night; ENV.sunDir = skyUni.sunDir.value;
