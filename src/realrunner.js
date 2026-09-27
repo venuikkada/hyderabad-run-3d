@@ -7,7 +7,8 @@ function loadRealRunner(url = 'Soldier.glb') {
   return new Promise(res => {
     if (!THREE.GLTFLoader) return res(null);
     const timer = setTimeout(() => res(null), 25000);
-    try { new THREE.GLTFLoader().load(url, g => { clearTimeout(timer); REAL.gltf = g; res(g); }, undefined, e => { clearTimeout(timer); console.warn('Runner model did not load', e); res(null); }); }
+    try { if (window.RUNNER_B64) { const bin = atob(window.RUNNER_B64); const buf = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) buf[i] = bin.charCodeAt(i); new THREE.GLTFLoader().parse(buf.buffer, '', g => { clearTimeout(timer); REAL.gltf = g; res(g); }, e => { clearTimeout(timer); console.warn('Runner model did not load', e); res(null); }); return; }
+      new THREE.GLTFLoader().load(url, g => { clearTimeout(timer); REAL.gltf = g; res(g); }, undefined, e => { clearTimeout(timer); console.warn('Runner model did not load', e); res(null); }); }
     catch (e) { clearTimeout(timer); res(null); }
   });
 }
