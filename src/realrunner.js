@@ -60,7 +60,7 @@ function initEnvMap() {
 function refreshEnvMap(force = false) {
   if (!ENVMAP.pmrem) return;
   const low = Q === QUALITY.low;
-  if (!force && (low || G.time - ENVMAP.t < 1.5 || (Math.abs(ENV.tod - ENVMAP.tod) < .005 && Math.abs(ENV.cloud - ENVMAP.cl) < .03))) return;
+  const high = Q === QUALITY.high; if (!force && (low || G.time - ENVMAP.t < (high ? 3 : 9) || (Math.abs(ENV.tod - ENVMAP.tod) < (high ? .006 : .015) && Math.abs(ENV.cloud - ENVMAP.cl) < .05))) return;
   ENVMAP.t = G.time; ENVMAP.tod = ENV.tod; ENVMAP.cl = ENV.cloud;
   const rt = ENVMAP.pmrem.fromScene(ENVMAP.scene, 0); if (ENVMAP.rt) ENVMAP.rt.dispose(); ENVMAP.rt = rt; scene.environment = rt.texture;
 }

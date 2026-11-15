@@ -384,8 +384,8 @@ function updateCamera(dt) {
   const metro = !!G.powers.metro; const cine = G.cine > 0 ? smooth(Math.min(1, G.cine / .8)) * smooth(Math.min(1, (3.4 - G.cine) / .8)) : 0;
   const side = G.cineSide || 1;
   const por = camera.aspect < .9;
-  _v.set(G.px * (por ? .35 : .55) + cine * side * -3.5, (por ? 4.1 : 3.3) + G.py * .55 + (metro ? 2.5 : 0) + cine * 2.2, (por ? 7.4 : 6.2) + (metro ? 2.5 : 0) + cine * 1.5);
-  _look.set(G.px * .75 + cine * side * 6, 1.4 + G.py * .6 + cine * 5, -9 - cine * 8);
+  _v.set(G.px * (por ? .35 : .5) + cine * side * -3.5, (por ? 3.5 : 3.0) + G.py * .55 + (metro ? 2.5 : 0) + cine * 2.2, (por ? 6.9 : 6.0) + (metro ? 2.5 : 0) + cine * 1.5);
+  _look.set(G.px * .7 + cine * side * 6, (por ? 2.5 : 2.0) + G.py * .6 + cine * 5, (por ? -15 : -13) - cine * 8);
   if (G.state === 'dying') { _v.set(G.px + 2.5, 2.4 + G.py, 4.5); _look.set(G.px, .8 + G.py, 0); }
   const k = 1 - Math.exp(-(G.state === 'dying' ? 3 : 7) * dt);
   camera.position.lerp(_v, k); camLook.lerp(_look, 1 - Math.exp(-6 * dt));

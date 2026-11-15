@@ -6,27 +6,20 @@ function show(id, on = true) { const el = $('#' + id); if (el) el.hidden = !on; 
 function only(...ids) { for (const s of SCREENS) show(s, ids.includes(s)); }
 function showHUD(on) { show('hud', on); $('#dashBtn').hidden = !IS_TOUCH && !navigator.getGamepads; }
 function esc(s) { return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
-function toast(html) { const t = document.createElement('div'); t.className = 'toast'; t.innerHTML = html; $('#toasts').appendChild(t); setTimeout(() => t.remove(), 2900); while ($('#toasts').children.length > 3) $('#toasts').firstChild.remove(); }
+function toast(html) { const t = document.createElement('div'); t.className = 'toast'; t.innerHTML = html; $('#toasts').appendChild(t); setTimeout(() => t.remove(), 2400); while ($('#toasts').children.length > 2) $('#toasts').firstChild.remove(); }
 function flashHit() { const v = $('#vignette'); v.classList.add('hit'); setTimeout(() => v.classList.remove('hit'), 260); }
 let bannerTimer = 0;
-function showBanner(z) { $('#bEye').textContent = 'Now passing · ' + (z.full || z.name); $('#bTe').textContent = z.lm.te; $('#bName').textContent = z.lm.name; $('#bFact').textContent = z.lm.fact; $('#banner').classList.add('show'); clearTimeout(bannerTimer); bannerTimer = setTimeout(() => $('#banner').classList.remove('show'), 4600); }
+function showBanner(z) { $('#bEye').textContent = 'Now passing · ' + (z.full || z.name); $('#bTe').textContent = z.lm.te; $('#bName').textContent = z.lm.name; $('#bFact').textContent = z.lm.fact; $('#banner').classList.add('show'); clearTimeout(bannerTimer); bannerTimer = setTimeout(() => $('#banner').classList.remove('show'), 3800); }
 
 /* ---------- HUD ---------- */
 const HUDC = {}; let routeZone = -1;
 function setText(id, v) { if (HUDC[id] !== v) { HUDC[id] = v; $('#' + id).textContent = v; } }
-function buildRoute(zi) {
-  routeZone = zi; const rl = $('#hRl'); rl.innerHTML = ''; const z = ZONES[zi];
-  const line = document.createElement('div'); line.className = 'rline'; line.style.background = z.line; rl.appendChild(line);
-  const pos = [6, 36, 66, 94]; [-1, 0, 1, 2].forEach((k, i) => { const zz = ZONES[(zi + k + ZONES.length) % ZONES.length]; const st = document.createElement('div'); st.className = 'st' + (k === 0 ? ' cur' : ''); st.style.left = pos[i] + '%'; st.innerHTML = '<i style="border-color:' + (k === 0 ? 'var(--gold)' : z.line) + '"></i><span></span>'; st.querySelector('span').textContent = zz.name; rl.appendChild(st); });
-  const me = document.createElement('div'); me.className = 'me'; me.id = 'hMe'; rl.appendChild(me);
-}
-function updateHudStatic() { routeZone = -1; HUDC.x = 0; for (const k in HUDC) delete HUDC[k]; $('#timer').hidden = G.mode !== 'ta'; const ob = $('#objective'); ob.hidden = !G.cfg.objective; if (G.cfg.objective) ob.textContent = G.cfg.objective; }
+let objTimer = 0;
+function updateHudStatic() { routeZone = -1; HUDC.x = 0; for (const k in HUDC) delete HUDC[k]; $('#timer').hidden = G.mode !== 'ta'; const ob = $('#objective'); ob.hidden = !G.cfg.objective; if (G.cfg.objective) ob.textContent = G.cfg.objective; clearTimeout(objTimer); objTimer = setTimeout(() => { ob.hidden = true; }, 6000); }
 function updateHud() {
   setText('hScore', fmtIN(G.score)); setText('hDist', fmtKm(G.runDist)); setText('hTok', fmtIN(G.tokens)); setText('hMult', '×' + (G.mult || 1 + S.multLevel)); setText('hSpd', String(Math.round(G.speed * 3.6)));
-  const zi = G.zoneIdx; if (zi !== routeZone) buildRoute(zi);
-  const z = ZONES[zi]; const loc = zoneLocal(G.dist); const me = $('#hMe'); if (me) me.style.left = (36 + clamp(loc / z.len, 0, 1) * 30) + '%';
-  setText('hCur', z.full || z.name);
-  const nl = nextLandmark(G.dist); if (nl) { setText('hNext', nl.z.lm.name + ' · ' + fmtKm(nl.wz - G.dist)); }
+  const nl = nextLandmark(G.dist);
+  if (nl) { if (HUDC.lmT !== nl.wz) { HUDC.lmT = nl.wz; HUDC.lmF = G.dist; $('#hDot').style.background = nl.z.line; } setText('hNext', nl.z.lm.name); setText('hNextD', fmtKm(nl.wz - G.dist)); const p = clamp((G.dist - HUDC.lmF) / Math.max(1, nl.wz - HUDC.lmF), 0, 1); const pw = Math.round(p * 100) + '%'; if (HUDC.bar !== pw) { HUDC.bar = pw; $('#hBar').style.width = pw; } }
   if (G.mode === 'ta') { const tl = $('#timer'); setText('timer', fmtTime(G.timeLeft)); tl.classList.toggle('low', G.timeLeft < 10); }
   // powers
   const keys = Object.keys(G.powers).sort().join(','); if (HUDC.pk !== keys) { HUDC.pk = keys; $('#hPowers').innerHTML = Object.keys(G.powers).map(k => `<div class="pw" data-p="${k}"><i style="background:${POWERS[k].color}"></i><span class="pn">${POWERS[k].name}</span><span class="pb"><u></u></span></div>`).join(''); }
@@ -390,10 +383,19 @@ function pollPad() {
 
 /* ---------- Main loop ---------- */
 let lastT = performance.now(), fpsAcc = 0, fpsN = 0;
+const DYN = { pr: 0, acc: 0, n: 0, last: 0 };
+function dynRes(dt) {
+  if (S.settings.quality !== 'auto' || G.state !== 'playing') { DYN.acc = 0; DYN.n = 0; return; }
+  const maxPr = Math.min(devicePixelRatio || 1, Q.pr); if (!DYN.pr) DYN.pr = renderer.getPixelRatio();
+  DYN.acc += dt; DYN.n++; if (DYN.acc < 2) return;
+  const fps = DYN.n / DYN.acc; DYN.acc = 0; DYN.n = 0; if (G.time - DYN.last < 3) return;
+  let pr = DYN.pr; if (fps < 50 && pr > .8) pr = Math.max(.8, pr - .12); else if (fps > 58 && pr < maxPr) pr = Math.min(maxPr, pr + .06);
+  if (pr !== DYN.pr) { DYN.pr = pr; DYN.last = G.time; renderer.setPixelRatio(pr); if (composer) { composer.setPixelRatio && composer.setPixelRatio(pr); composer.setSize(innerWidth, innerHeight); } }
+}
 function loop(now) {
   requestAnimationFrame(loop);
   let dt = Math.min(.05, (now - lastT) / 1000); lastT = now; if (dt <= 0) return;
-  G.time += dt; pollPad();
+  G.time += dt; pollPad(); dynRes(dt);
   if (S.settings.fps) { fpsAcc += dt; fpsN++; if (fpsAcc > .5) { $('#fps').textContent = Math.round(fpsN / fpsAcc) + ' fps'; fpsAcc = 0; fpsN = 0; } }
   const st = G.state;
   if (st === 'intro') { introUpdate(dt); renderFrame(mapScene, mapCam); return; }
@@ -425,8 +427,8 @@ function loop(now) {
 function isPortrait() { return camera.aspect < .9; }
 function swoopUpdate(dt) {
   swoopT -= dt; const k = 1 - clamp(swoopT / 2.6, 0, 1); const e = 1 - Math.pow(1 - k, 3);
-  const chase = new THREE.Vector3(G.px * .55, (isPortrait() ? 4.1 : 3.3) + G.py * .55, isPortrait() ? 7.4 : 6.2), high = new THREE.Vector3(0, 70, 30);
-  camera.position.lerpVectors(high, chase, e); camLook.lerpVectors(new THREE.Vector3(0, 22, -52), new THREE.Vector3(G.px * .75, 1.4, -9), e); camera.lookAt(camLook); camera.fov = isPortrait() ? 72 : 60; camera.updateProjectionMatrix();
+  const chase = new THREE.Vector3(G.px * .5, (isPortrait() ? 3.5 : 3.0) + G.py * .55, isPortrait() ? 6.9 : 6.0), high = new THREE.Vector3(0, 70, 30);
+  camera.position.lerpVectors(high, chase, e); camLook.lerpVectors(new THREE.Vector3(0, 22, -52), new THREE.Vector3(G.px * .7, isPortrait() ? 2.5 : 2.0, isPortrait() ? -15 : -13), e); camera.lookAt(camLook); camera.fov = isPortrait() ? 72 : 60; camera.updateProjectionMatrix();
 }
 function menuCam(dt) {
   if (G.state === 'chars') { const tgt = new THREE.Vector3(innerWidth > 720 ? 1.1 : 0, 1.45, -3.4); camera.position.lerp(tgt, 1 - Math.exp(-4 * dt)); camLook.lerp(new THREE.Vector3(innerWidth > 720 ? 1.1 : 0, innerWidth > 720 ? 1.05 : 1.35, 0), 1 - Math.exp(-4 * dt)); camera.lookAt(camLook); camera.fov = damp(camera.fov, 42, 4, dt); camera.updateProjectionMatrix(); return; }

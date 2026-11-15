@@ -243,13 +243,14 @@ function hut(b, x, z, ry = 0) {
 }
 function statue(b, x, z, ry) { b.box('lmk', x, .9, z, 1.4, 1.8, 1.4, '#d9d2c4'); b.box('lmk', x, 1.95, z, 1.1, .3, 1.1, '#bdb5a6'); b.withTx(x, 2.1, z, ry, 1.35, () => { b.add('bronze', taper(.75, 8), 0, .55, 0, .55, 1.1, .4, '#7a5a38'); b.box('bronze', 0, 1.3, 0, .5, .55, .3, '#7a5a38'); b.add('bronze', 'sph', 0, 1.78, 0, .26, .3, .26, '#7a5a38'); b.box('bronze', -.3, 1.3, .05, .12, .5, .14, '#7a5a38'); b.add('bronze', 'box', .3, 1.45, .1, .12, .5, .14, '#7a5a38', -.4, 0, 0); }); }
 
+function crowdP(b, ...a) { if (Q !== QUALITY.high && Math.random() < .45) return; person(b, ...a); }
 const BUILD = {};
 BUILD.old = (b, c) => {
   roadBase(b, 'oldroad'); sidewalks(b, 4.1, 6.2, .18, 'pave');
   for (const s of [-1, 1]) { let z = 0; for (const w of fillWidths(CHUNK, 4.5, 8)) { oldBuilding(b, s, z + w / 2, w, 6.2); z += w; } }
   if (c.idx % 2 === 0) b.add('bulbs', 'plane', 0, 6.6, -rr(5, 25), 12.6, .8, 1, '#fff', 0, 0, 0, { uvs: [1, 1, 0, 0] });
   if (c.idx % 3 === 0) b.add('bulbs', 'plane', 0, 7.2, -rr(5, 25), 12.6, .8, 1, '#fff', 0, 0, 0, { uvs: [1, 1, 0, 0] });
-  for (let k = 0; k < 6; k++) { const s = Math.random() < .5 ? -1 : 1; person(b, s * rr(4.6, 5.8), -rr(1, 29), rr(0, 6.28), { walk: Math.random() < .5 }); }
+  for (let k = 0; k < 6; k++) { const s = Math.random() < .5 ? -1 : 1; crowdP(b, s * rr(4.6, 5.8), -rr(1, 29), rr(0, 6.28), { walk: Math.random() < .5 }); }
   if (Math.random() < .5) { const s = Math.random() < .5 ? -1 : 1; const z = -rr(4, 26); b.box('paint', s * 5.2, .8, z, 1, .08, 2, '#6b4421'); for (let k = 0; k < 10; k++) b.add('paint', 'torus', s * 5.2 + rr(-.3, .3), .9, z + rr(-.8, .8), .25, .25, .25, pick(['#c2185b', '#e9b949', '#2f7fd1', '#12a38c', '#8e24aa', '#f26b38']), Math.PI / 2, 0, 0); }
   if (c.idx % 2 === 1) { streetLight(b, -5.6, -8, -1, 7, 1.6); streetLight(b, 5.6, -23, 1, 7, 1.6); }
 };
@@ -262,7 +263,7 @@ BUILD.city = (b, c) => {
   for (const s of [-1, 1]) { let z = 0; for (const w of fillWidths(CHUNK, 9, 15)) { if (Math.random() < .12) { treeRound(b, s * 14, -(z + w / 2), 1.1); } else cityBuilding(b, s, z + w / 2, w, 10.6 + rr(0, 2), tall && Math.random() < .4); z += w; } }
   if (trees) for (const s of [-1, 1]) if (Math.random() < .7) (Math.random() < .5 ? treeGulmohar : treeRound)(b, s * 8.8, -rr(3, 27), rr(.8, 1));
   if (c.idx % 2 === 0) doubleLight(b, 4.35, -15); else doubleLight(b, -4.35, -15);
-  for (let k = 0; k < 4; k++) { const s = Math.random() < .5 ? -1 : 1; person(b, s * rr(8, 9.8), -rr(1, 29), rr(0, 6.28), { walk: Math.random() < .6 }); }
+  for (let k = 0; k < 4; k++) { const s = Math.random() < .5 ? -1 : 1; crowdP(b, s * rr(8, 9.8), -rr(1, 29), rr(0, 6.28), { walk: Math.random() < .6 }); }
   if (c.idx % 4 === 1) billboard(b, (Math.random() < .5 ? -1 : 1) * 9.4, -15, Math.random() < .5 ? -1 : 1, ri(12, 19), 5.5, 6.5);
 };
 BUILD.hill = (b, c) => {
@@ -272,7 +273,7 @@ BUILD.hill = (b, c) => {
   for (let k = 0; k < 2; k++) treeRound(b, -rr(8, 16), -rr(2, 28), rr(.8, 1.1));
   let z = 0; for (const w of fillWidths(CHUNK, 9, 15)) { cityBuilding(b, 1, z + w / 2, w, 7.5, Math.random() < .3); z += w; }
   if (c.idx % 2 === 0) streetLight(b, 4.4, -12, 1);
-  for (let k = 0; k < 3; k++) person(b, rr(4.6, 6.2), -rr(1, 29), rr(0, 6.28), { walk: true });
+  for (let k = 0; k < 3; k++) crowdP(b, rr(4.6, 6.2), -rr(1, 29), rr(0, 6.28), { walk: true });
 };
 BUILD.metro = (b, c) => {
   BUILD.city(b, c);
@@ -295,7 +296,7 @@ BUILD.tech = (b, c) => {
   if (c.idx % 3 === 0) billboard(b, (c.idx % 2 ? -1 : 1) * 11, -12, c.idx % 2 ? -1 : 1, ri(15, 18), 6, 8);
   // side metro viaduct
   b.box('lmk', -16, 11, -CHUNK / 2, 8, 1.3, CHUNK, '#c9c4ba'); b.box('neon', -16, 10.3, -CHUNK / 2, 8.02, .12, CHUNK, '#1a74d1'); b.add('lmk', 'cyl12', -16, 5.2, -15, 1.7, 10.4, 1.7, '#bdb8ae'); b.box('lmk', -16, 10.1, -15, 5, 1, 2, '#b2ada3');
-  for (let k = 0; k < 4; k++) { const s = Math.random() < .5 ? -1 : 1; person(b, s * rr(9, 11.5), -rr(1, 29), rr(0, 6.28), { walk: true, top: pick(['#f4f4f2', '#2a3550', '#9aa4b1', '#bcd3ef']), bag: Math.random() < .5 ? '#222' : null }); }
+  for (let k = 0; k < 4; k++) { const s = Math.random() < .5 ? -1 : 1; crowdP(b, s * rr(9, 11.5), -rr(1, 29), rr(0, 6.28), { walk: true, top: pick(['#f4f4f2', '#2a3550', '#9aa4b1', '#bcd3ef']), bag: Math.random() < .5 ? '#222' : null }); }
 };
 BUILD.lake = (b, c) => {
   roadBase(b, 'road'); sidewalks(b, 4.1, 8.2, .22, 'pave');
@@ -307,7 +308,7 @@ BUILD.lake = (b, c) => {
   else { for (let k = 0; k < 2; k++) (Math.random() < .5 ? treePalm : treeGulmohar)(b, -rr(10, 18), -rr(2, 28), rr(.9, 1.1)); }
   if (Math.random() < .6) { let z = 0; for (const w of fillWidths(CHUNK, 10, 15)) { if (Math.random() < .5) cityBuilding(b, -1, z + w / 2, w, 32 + rr(0, 10), true); z += w; } }
   streetLight(b, 7.6, -5, 1, 8, 2.4); if (c.idx % 2) streetLight(b, -7.6, -20, -1, 8, 2.4);
-  for (let k = 0; k < 3; k++) person(b, rr(4.8, 7.6), -rr(1, 29), rr(0, 6.28), { walk: Math.random() < .5 });
+  for (let k = 0; k < 3; k++) crowdP(b, rr(4.8, 7.6), -rr(1, 29), rr(0, 6.28), { walk: Math.random() < .5 });
   if (Math.random() < .5) b.box('paint', 7.2, .6, -rr(5, 25), .6, .5, 2, '#6b4421');
 };
 BUILD.rail = (b, c) => {
@@ -319,7 +320,7 @@ BUILD.rail = (b, c) => {
     b.box('paint', s * 7.4, 6.3, -CHUNK / 2, 7.4, .25, CHUNK, '#c9ccc4'); b.box('paint', s * 7.4, 6.55, -CHUNK / 2, 7.6, .25, CHUNK, '#7a2e2a');
     b.box('lamp', s * 5.2, 6.05, -CHUNK / 2, .12, .08, CHUNK - 2, '#f4fbff');
     b.box('paint', s * 11.5, 1.8, -CHUNK / 2, 2, 3.6, CHUNK, '#d7cfbd');
-    for (let k = 0; k < 5; k++) person(b, s * rr(5.2, 9.5), -rr(1, 29), rr(0, 6.28), { walk: Math.random() < .4, bag: Math.random() < .5 ? pick(['#b3261e', '#1f3a68', '#3a2a22']) : null });
+    for (let k = 0; k < 5; k++) crowdP(b, s * rr(5.2, 9.5), -rr(1, 29), rr(0, 6.28), { walk: Math.random() < .4, bag: Math.random() < .5 ? pick(['#b3261e', '#1f3a68', '#3a2a22']) : null });
     b.withTx(s * 8.8, 1, -rr(4, 26), s > 0 ? -Math.PI / 2 : Math.PI / 2, 1, () => { b.box('paint', 0, .5, 0, 2, .08, .5, '#8a5a2b'); b.box('paint', 0, .82, -.22, 2, .45, .08, '#8a5a2b'); b.box('metal', 0, .25, 0, 1.8, .5, .4, '#555'); });
   }
   b.box('metal', 0, 6.9, -CHUNK / 2, .1, .1, CHUNK, '#555'); for (const lx of LANE_X) b.box('metal', lx, 6.5, -CHUNK / 2, .04, .04, CHUNK, '#333');
@@ -337,14 +338,14 @@ BUILD.railcity = (b, c) => {
   for (const tx of [-11, -16]) for (const s of [-1, 1]) b.box('metal', tx + s * .84, .1, -CHUNK / 2, .09, .16, CHUNK, '#9aa0a6');
   fence(b, -7, 0, CHUNK, 2.2, '#5a5f64');
   if (c.idx % 2) streetLight(b, 5.8, -10, 1, 7.5, 1.8);
-  for (let k = 0; k < 4; k++) person(b, rr(4.6, 6.2), -rr(1, 29), rr(0, 6.28), { walk: true });
+  for (let k = 0; k < 4; k++) crowdP(b, rr(4.6, 6.2), -rr(1, 29), rr(0, 6.28), { walk: true });
 };
 BUILD.campus = (b, c) => {
   roadBase(b, 'road', 4.1); for (const s of [-1, 1]) curb(b, s * 4.15, 0, CHUNK);
   for (const s of [-1, 1]) { groundStrip(b, 'grass', s * 4.2, s * 70, 0, CHUNK, .05, 4); slab(b, 'pave', s * 5, s * 6.6, 0, CHUNK, .12, 1); }
   for (const s of [-1, 1]) { if (Math.random() < .55) treeBanyan(b, s * rr(13, 22), -rr(4, 26), rr(.8, 1.1)); else treeRound(b, s * rr(9, 16), -rr(4, 26), rr(1, 1.3)); if (Math.random() < .6) treeRound(b, s * rr(20, 34), -rr(2, 28), rr(1, 1.4)); }
   if (c.idx % 3 === 0) { const s = Math.random() < .5 ? -1 : 1; b.withTx(s * 42, 0, -15, s > 0 ? -Math.PI / 2 : Math.PI / 2, 1, () => { b.facade('old', 0, 0, 0, 26, 9, 12, '#bca592', 3.4, 4.5); b.box('lmk', 0, 9.3, 0, 27, .6, 13, '#8d776a'); arches(b, 'lmk', 0, 0, 6.05, 0, 6, 20, 2.2, 3.6, '#3b2f28'); }); }
-  for (let k = 0; k < 6; k++) { const s = Math.random() < .5 ? -1 : 1; person(b, s * rr(5.2, 12), -rr(1, 29), rr(0, 6.28), { walk: Math.random() < .5, bag: pick(['#e9b949', '#2f7fd1', '#c2185b', '#222', '#12a38c']) }); }
+  for (let k = 0; k < 6; k++) { const s = Math.random() < .5 ? -1 : 1; crowdP(b, s * rr(5.2, 12), -rr(1, 29), rr(0, 6.28), { walk: Math.random() < .5, bag: pick(['#e9b949', '#2f7fd1', '#c2185b', '#222', '#12a38c']) }); }
   if (Math.random() < .5) { const s = Math.random() < .5 ? -1 : 1; const z = -rr(5, 25); for (let k = 0; k < 5; k++) b.withTx(s * 7.4, 0, z + k * .7, Math.PI / 2, 1, () => { b.add('paint', 'wheel', .5, .34, 0, .05, .68, .68, '#1a1a1a'); b.add('paint', 'wheel', -.5, .34, 0, .05, .68, .68, '#1a1a1a'); b.box('metal', 0, .6, 0, 1, .05, .05, pick(['#2f6fd1', '#b3261e', '#222'])); }); }
   if (c.idx % 2) { streetLight(b, 4.6, -8, 1, 7, 1.4); streetLight(b, -4.6, -23, -1, 7, 1.4); }
   if (Math.random() < .5) b.withTx((Math.random() < .5 ? -1 : 1) * 7.5, .12, -rr(4, 26), 0, 1, () => { b.box('paint', 0, .45, 0, .5, .08, 2, '#8a5a2b'); b.box('metal', 0, .22, 0, .4, .44, 1.8, '#555'); });
@@ -356,7 +357,7 @@ BUILD.zoo = (b, c) => {
   if (Math.random() < .5) rockPile(b, (Math.random() < .5 ? -1 : 1) * rr(12, 20), -rr(4, 26), rr(.7, 1.2));
   if (c.idx % 3 === 0) { const s = Math.random() < .5 ? -1 : 1; b.uv('water', 'ground', s * 20, .05, -15, 16, 1, 22, '#fff', 1.2, 1.6); }
   if (c.idx % 2) streetLight(b, 4.5, -12, 1, 6.5, 1.2);
-  for (let k = 0; k < 3; k++) person(b, (Math.random() < .5 ? -1 : 1) * rr(4.5, 6.5), -rr(1, 29), rr(0, 6.28), { walk: true, cap: Math.random() < .3 ? '#ffffff' : null });
+  for (let k = 0; k < 3; k++) crowdP(b, (Math.random() < .5 ? -1 : 1) * rr(4.5, 6.5), -rr(1, 29), rr(0, 6.28), { walk: true, cap: Math.random() < .3 ? '#ffffff' : null });
   if (c.idx % 4 === 2) signPlane(b, (Math.random() < .5 ? -1 : 1) * 6.6, 1.8, -10, 2.6, 1.3, 30, 0);
   c.animals = true;
 };
@@ -372,7 +373,7 @@ BUILD.fort = (b, c) => {
   }
   if (c.idx % 2 === 0) { const s = c.idx % 4 ? -1 : 1; b.add('lmk', 'cyl16', s * 11.5, 5.5, -15, 8, 11, 8, '#857a67'); for (let k = 0; k < 10; k++) { const a = k / 10 * 6.28; b.box('lmk', s * 11.5 + Math.sin(a) * 3.8, 11.7, -15 + Math.cos(a) * 3.8, 1, 1.4, 1, '#968b77'); } }
   for (const s of [-1, 1]) { b.box('lamp', s * 8.75, 5, -8, .15, .35, .15, '#ffb347'); b.add('pool', 'ground', s * 6.8, .04, -8, 6, 1, 6, '#fff'); }
-  for (let k = 0; k < 2; k++) person(b, (Math.random() < .5 ? -1 : 1) * rr(4.6, 7.5), -rr(1, 29), rr(0, 6.28), { walk: true, cap: Math.random() < .5 ? '#ffffff' : null });
+  for (let k = 0; k < 2; k++) crowdP(b, (Math.random() < .5 ? -1 : 1) * rr(4.6, 7.5), -rr(1, 29), rr(0, 6.28), { walk: true, cap: Math.random() < .5 ? '#ffffff' : null });
 };
 BUILD.tombs = (b, c) => {
   b.uv('stone', 'ground', 0, 0, -CHUNK / 2, 8.2, 1, CHUNK, '#e8e0d0', 8.2 / 5, CHUNK / 5);
@@ -384,7 +385,7 @@ BUILD.tombs = (b, c) => {
     if (Math.random() < .5) slab(b, 'stone', s * 14, s * 17, -rr(0, 10), 18, .2, 3);
   }
   if (c.idx % 2) { streetLight(b, 4.6, -15, 1, 5.5, .9); streetLight(b, -4.6, -15, -1, 5.5, .9); }
-  for (let k = 0; k < 2; k++) person(b, (Math.random() < .5 ? -1 : 1) * rr(4.6, 9), -rr(1, 29), rr(0, 6.28), { walk: true });
+  for (let k = 0; k < 2; k++) crowdP(b, (Math.random() < .5 ? -1 : 1) * rr(4.6, 9), -rr(1, 29), rr(0, 6.28), { walk: true });
 };
 BUILD.outskirts = (b, c) => {
   roadBase(b, 'highway'); for (const s of [-1, 1]) groundStrip(b, 'earth', s * 4.1, s * 6, 0, CHUNK, .02, 4);
@@ -420,7 +421,7 @@ function buildBridge(b, c, type) {
   if (type === 'cable' && c.idx % 2) { streetLight(b, 5.4, -12, 1, 8, 2.2); streetLight(b, -5.4, -27, -1, 8, 2.2); }
   if (type !== 'wood') for (const s of [-1, 1]) for (let k = 0; k < 2; k++) rockPile(b, s * rr(30, 80), -rr(2, 28), rr(1.2, 2.4));
   if (type === 'wood') for (const s of [-1, 1]) { treeRound(b, s * rr(16, 30), -rr(3, 27), 1.1); rockPile(b, s * rr(12, 24), -rr(3, 27), .9); }
-  for (let k = 0; k < 2; k++) person(b, (Math.random() < .5 ? -1 : 1) * rr(4.5, 5.5), -rr(1, 29), rr(0, 6.28), { walk: true });
+  for (let k = 0; k < 2; k++) crowdP(b, (Math.random() < .5 ? -1 : 1) * rr(4.5, 5.5), -rr(1, 29), rr(0, 6.28), { walk: true });
 }
 BUILD.bridge = (b, c) => { // Durgam Cheruvu lakeside when not on the bridge
   roadBase(b, 'road'); sidewalks(b, 4.1, 7.5, .2, 'pave');
@@ -430,7 +431,7 @@ BUILD.bridge = (b, c) => { // Durgam Cheruvu lakeside when not on the bridge
   for (let k = 0; k < 2; k++) rockPile(b, s * rr(14, 40), -rr(2, 28), rr(1.2, 2.2));
   let z = 0; for (const w of fillWidths(CHUNK, 14, 24)) { techTower(b, -s, z + w / 2, w, 11 + rr(0, 6)); z += w; }
   streetLight(b, s * 7, -10, s, 8, 2.3);
-  for (let k = 0; k < 3; k++) person(b, s * rr(4.6, 7), -rr(1, 29), rr(0, 6.28), { walk: true });
+  for (let k = 0; k < 3; k++) crowdP(b, s * rr(4.6, 7), -rr(1, 29), rr(0, 6.28), { walk: true });
 };
 
 /* ---------- Chunk streaming ---------- */
